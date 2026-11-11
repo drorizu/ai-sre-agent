@@ -195,3 +195,79 @@ By separating the responsibilities of the Agent Orchestrator, LLM, and Investiga
 - **State management:** Investigation progress and execution results are tracked throughout the lifecycle.
 - **Natural-language responses:** The LLM converts investigation results into understandable responses for SREs.
 
+## Project Structure
+
+```
+
+sre-agent/                              # Root directory of the SRE Agent project
+│
+├── README.md                           # Project documentation, architecture, setup and usage instructions
+├── pyproject.toml                      # Project metadata, dependencies, build configuration and development tools
+├── .env.example                        # Example environment variables required to configure the application
+├── .gitignore                          # Files and directories Git should exclude from version control
+│
+├── app/                                # Main application source code
+│   ├── __init__.py                     # Marks app as a Python package
+│   ├── main.py                         # FastAPI application entry point; initializes the application and registers routes
+│   ├── dependencies.py                 # Creates and provides shared application components through dependency injection
+│   │
+│   ├── api/                            # HTTP API layer; handles communication with the frontend
+│   │   ├── __init__.py                 # Marks api as a Python package
+│   │   ├── routes/                     # API endpoint definitions
+│   │   │   ├── __init__.py             # Marks routes as a Python package
+│   │   │   └── investigations.py       # Handles investigation requests and returns investigation results
+│   │   └── schemas/                    # Pydantic request and response models
+│   │       ├── __init__.py             # Marks schemas as a Python package
+│   │       └── investigation.py        # Defines investigation request and response structures
+│   │
+│   ├── core/                           # Shared application configuration and infrastructure
+│   │   ├── __init__.py                 # Marks core as a Python package
+│   │   ├── config.py                   # Loads and validates application configuration and environment variables
+│   │   └── logging.py                  # Configures application logging and log formats
+│   │
+│   ├── orchestrators/                  # Coordinates agent reasoning and investigation execution
+│   │   ├── __init__.py                 # Marks orchestrators as a Python package
+│   │   ├── agent_orchestrator.py       # Coordinates LLM interactions, skill selection, tool calls and agent context
+│   │   └── investigation_orchestrator.py # Executes selected skills and manages the investigation execution lifecycle
+│   │
+│   ├── agent/                          # LLM integration and agent-specific logic
+│   │   ├── __init__.py                 # Marks agent as a Python package
+│   │   ├── llm_client.py               # Handles communication with the LLM provider
+│   │   ├── skill_selector.py           # Selects appropriate skills and extracts function arguments using LLM output
+│   │   └── prompts/                    # Stores prompts used to guide LLM behaviour
+│   │       └── system_prompt.txt       # Defines the LLM's role, instructions and investigation behaviour
+│   │
+│   ├── skills/                         # Collection of executable investigation capabilities
+│   │   ├── __init__.py                 # Marks skills as a Python package
+│   │   ├── registry.py                 # Registers available skills and makes them discoverable by the agent
+│   │   ├── base.py                     # Defines the common interface and contract that every skill must implement
+│   │   └── infrastructure/            # Infrastructure monitoring and investigation skills
+│   │       ├── __init__.py             # Marks infrastructure as a Python package
+│   │       ├── cpu.py                  # Checks CPU utilization and related CPU metrics
+│   │       ├── memory.py               # Checks memory utilization and memory-related metrics
+│   │       ├── disk.py                 # Checks disk utilization, capacity and storage metrics
+│   │       └── health.py               # Checks server, application and service health
+│   │
+│   ├── investigations/                 # Investigation data models, persistence and state management
+│   │   ├── __init__.py                 # Marks investigations as a Python package
+│   │   ├── models.py                   # Defines investigation models, statuses and data structures
+│   │   ├── state_manager.py            # Creates investigations and manages their state transitions and results
+│   │   └── repository.py               # Provides the data access layer for storing and retrieving investigations
+│   │
+│   └── services/                       # Reusable application-level business services
+│       ├── __init__.py                 # Marks services as a Python package
+│       └── response_service.py         # Formats investigation results into structured responses for the frontend
+│
+├── tests/                              # Automated test suite
+│   ├── __init__.py                     # Marks tests as a Python package
+│   ├── test_api.py                     # Tests FastAPI endpoints, request validation and API responses
+│   ├── test_agent_orchestrator.py      # Tests agent coordination, LLM interactions and skill selection
+│   ├── test_investigation_orchestrator.py # Tests skill execution, result handling and investigation lifecycle
+│   └── skills/                         # Unit tests for individual investigation skills
+│       ├── test_cpu.py                 # Tests CPU investigation skill behaviour
+│       └── test_memory.py              # Tests memory investigation skill behaviour
+│
+└── scripts/                            # Utility scripts for development and execution
+    └── run.py                          # Provides an alternative entry point for starting the application
+```
+
